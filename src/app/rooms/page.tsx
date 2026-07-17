@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Scherm, Paneel, Knop } from "@/components/ui";
 import { useSettings } from "@/lib/settings";
-import { KAMERS, leesFiches, resetFiches, START_FICHES } from "@/game/economie";
+import { KAMERS, leesFiches, resetFiches, START_FICHES, euro } from "@/game/economie";
 import { speel } from "@/lib/sound";
 
 export default function KamersScherm() {
@@ -27,9 +27,9 @@ export default function KamersScherm() {
       <div className="mb-4">
         <Paneel className="flex items-center justify-between">
           <div>
-            <div className="text-sm text-cream/70">Jouw fiches</div>
+            <div className="text-sm text-cream/70">Jouw saldo</div>
             <div className="font-display text-3xl font-bold text-gold-400">
-              {fiches}
+              {euro(fiches)}
             </div>
           </div>
           <Knop
@@ -42,8 +42,8 @@ export default function KamersScherm() {
           </Knop>
         </Paneel>
         <p className="mt-2 px-1 text-xs text-cream/50">
-          Fiches zijn punten voor de lol. Geen echt geld, niet te kopen en niet
-          uit te betalen.
+          Dit is een testversie. De bedragen zijn nog niet echt en er wordt geen
+          geld verwerkt.
         </p>
       </div>
 
@@ -73,12 +73,12 @@ export default function KamersScherm() {
                       <div className="text-sm text-cream/70">
                         {k.hobby
                           ? "Gratis spelen, geen inzet"
-                          : `Inleg ${k.inleg} fiches per speler`}
+                          : `Inleg ${euro(k.inleg)} per speler`}
                       </div>
                     </div>
                   </div>
                   <span className="text-cream/50">
-                    {teDuur ? "Te weinig fiches" : "→"}
+                    {teDuur ? "Te weinig saldo" : "→"}
                   </span>
                 </div>
               </Paneel>

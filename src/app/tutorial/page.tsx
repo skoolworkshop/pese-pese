@@ -119,7 +119,7 @@ export default function UitlegScherm() {
             {t("algemeen.volgende")}
           </Knop>
         ) : (
-          <LinkKnop href="/mode" volleBreedte>
+          <LinkKnop href="/rooms" volleBreedte>
             {t("uitleg.begin")}
           </LinkKnop>
         )}

@@ -113,21 +113,113 @@ export function Speelkaart({
 
   const rood = SUIT_ROOD[kaart.suit];
   const isJoker = kaart.suit === "joker";
+  const isFace = kaart.rank === "B" || kaart.rank === "V" || kaart.rank === "H";
+  const isAas = kaart.rank === "A";
   const kleur = rood ? "text-blood-600" : "text-ink";
+  const symbool = SUIT_SYMBOOL[kaart.suit];
+  const label = RANK_LABEL[kaart.rank];
+  const randKleur = rood ? "#c8102e" : "#12251c";
   const rand = gemarkeerd
     ? "ring-4 ring-gold-500"
     : fout
       ? "ring-4 ring-blood-500 animate-shakeX"
       : "";
 
+  // Klassieke pip-indeling per kaartwaarde.
+  const pips: Record<string, [number, number][]> = {
+    "2": [
+      [0.5, 0.06],
+      [0.5, 0.94],
+    ],
+    "3": [
+      [0.5, 0.06],
+      [0.5, 0.5],
+      [0.5, 0.94],
+    ],
+    "4": [
+      [0.22, 0.06],
+      [0.78, 0.06],
+      [0.22, 0.94],
+      [0.78, 0.94],
+    ],
+    "5": [
+      [0.22, 0.06],
+      [0.78, 0.06],
+      [0.5, 0.5],
+      [0.22, 0.94],
+      [0.78, 0.94],
+    ],
+    "6": [
+      [0.22, 0.06],
+      [0.78, 0.06],
+      [0.22, 0.5],
+      [0.78, 0.5],
+      [0.22, 0.94],
+      [0.78, 0.94],
+    ],
+    "7": [
+      [0.22, 0.06],
+      [0.78, 0.06],
+      [0.5, 0.28],
+      [0.22, 0.5],
+      [0.78, 0.5],
+      [0.22, 0.94],
+      [0.78, 0.94],
+    ],
+    "8": [
+      [0.22, 0.06],
+      [0.78, 0.06],
+      [0.5, 0.28],
+      [0.22, 0.5],
+      [0.78, 0.5],
+      [0.5, 0.72],
+      [0.22, 0.94],
+      [0.78, 0.94],
+    ],
+    "9": [
+      [0.22, 0.05],
+      [0.78, 0.05],
+      [0.22, 0.37],
+      [0.78, 0.37],
+      [0.5, 0.5],
+      [0.22, 0.63],
+      [0.78, 0.63],
+      [0.22, 0.95],
+      [0.78, 0.95],
+    ],
+    "10": [
+      [0.22, 0.05],
+      [0.78, 0.05],
+      [0.5, 0.2],
+      [0.22, 0.37],
+      [0.78, 0.37],
+      [0.22, 0.63],
+      [0.78, 0.63],
+      [0.5, 0.8],
+      [0.22, 0.95],
+      [0.78, 0.95],
+    ],
+  };
+
+  const hoekIndex = (plaats: string) => (
+    <div
+      className={`absolute ${plaats} flex flex-col items-center leading-none ${kleur}`}
+    >
+      <span className={`font-bold ${groot ? "text-base" : "text-[9px]"}`}>
+        {label}
+      </span>
+      <span className={groot ? "text-sm" : "text-[8px]"}>{symbool}</span>
+    </div>
+  );
+
   const inhoud = (
     <div
-      className={`relative bg-cream rounded-card ${maat} shadow-card flex flex-col justify-between p-1.5 ${rand} ${
+      className={`relative bg-cream rounded-card ${maat} shadow-card overflow-hidden ${rand} ${
         onClick && !disabled ? "hover:-translate-y-1 transition-transform" : ""
       }`}
     >
       {isJoker ? (
-        <div className="flex-1 flex flex-col items-center justify-center text-gold-500">
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-gold-500">
           <span className={groot ? "text-3xl" : "text-lg"}>★</span>
           <span className={`font-semibold ${groot ? "text-sm" : "text-[10px]"}`}>
             Joker
@@ -135,29 +227,55 @@ export function Speelkaart({
         </div>
       ) : (
         <>
-          <div className={`leading-none font-semibold ${kleur}`}>
-            <div className={groot ? "text-lg" : "text-xs"}>
-              {RANK_LABEL[kaart.rank]}
+          {hoekIndex("top-1 left-1")}
+          {hoekIndex("bottom-1 right-1 rotate-180")}
+
+          {isAas && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className={`${kleur} ${groot ? "text-5xl" : "text-2xl"}`}>
+                {symbool}
+              </span>
             </div>
-            <div className={groot ? "text-2xl" : "text-sm"}>
-              {SUIT_SYMBOOL[kaart.suit]}
+          )}
+
+          {isFace && (
+            <div
+              className="absolute inset-[22%] flex flex-col items-center justify-center gap-0.5 rounded border-2"
+              style={{ borderColor: randKleur }}
+            >
+              <span
+                className={`font-bold ${kleur} ${groot ? "text-4xl" : "text-lg"}`}
+              >
+                {label}
+              </span>
+              <span className={`${kleur} ${groot ? "text-xl" : "text-xs"}`}>
+                {symbool}
+              </span>
             </div>
-          </div>
-          <div
-            className={`self-center ${kleur} ${groot ? "text-5xl" : "text-2xl"}`}
-          >
-            {SUIT_SYMBOOL[kaart.suit]}
-          </div>
-          <div
-            className={`self-end rotate-180 leading-none font-semibold ${kleur}`}
-          >
-            <div className={groot ? "text-lg" : "text-xs"}>
-              {RANK_LABEL[kaart.rank]}
+          )}
+
+          {!isAas && !isFace && pips[kaart.rank] && (
+            <div
+              className="absolute"
+              style={{ top: "15%", bottom: "15%", left: "20%", right: "20%" }}
+            >
+              {pips[kaart.rank].map(([x, y], i) => (
+                <span
+                  key={i}
+                  className={`absolute leading-none ${kleur} ${
+                    groot ? "text-xl" : "text-[10px]"
+                  }`}
+                  style={{
+                    left: `${x * 100}%`,
+                    top: `${y * 100}%`,
+                    transform: `translate(-50%, -50%) rotate(${y > 0.5 ? 180 : 0}deg)`,
+                  }}
+                >
+                  {symbool}
+                </span>
+              ))}
             </div>
-            <div className={groot ? "text-2xl" : "text-sm"}>
-              {SUIT_SYMBOOL[kaart.suit]}
-            </div>
-          </div>
+          )}
         </>
       )}
     </div>

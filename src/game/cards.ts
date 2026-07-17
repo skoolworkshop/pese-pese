@@ -46,9 +46,9 @@ export const RANK_LABEL: Record<Rank, string> = {
   "8": "8",
   "9": "9",
   "10": "10",
-  B: "B",
-  V: "V",
-  H: "H",
+  B: "J",
+  V: "Q",
+  H: "K",
   joker: "Joker",
 };
 

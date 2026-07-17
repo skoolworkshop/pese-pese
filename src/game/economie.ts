@@ -97,3 +97,9 @@ export function resetFiches(): number {
   schrijfFiches(START_FICHES);
   return START_FICHES;
 }
+
+// Toon bedragen als euro. Dit is een testversie, er wordt nog geen echt geld
+// verwerkt. De euro is hier alleen een label voor het gevoel.
+export function euro(n: number): string {
+  return `\u20ac ${n}`;
+}

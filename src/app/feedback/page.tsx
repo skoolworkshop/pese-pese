@@ -51,7 +51,7 @@ export default function FeedbackScherm() {
             {t("feedback.dank")}
           </p>
           <div className="mt-5 flex flex-col gap-2">
-            <LinkKnop href="/mode" volleBreedte>
+            <LinkKnop href="/rooms" volleBreedte>
               {t("welkom.speel")}
             </LinkKnop>
             <LinkKnop href="/" variant="ghost" volleBreedte>

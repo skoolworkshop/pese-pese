@@ -41,14 +41,11 @@ export default function WelkomScherm() {
             </LinkKnop>
           )}
           <LinkKnop
-            href="/mode"
+            href="/rooms"
             volleBreedte
             variant={heeftLopend ? "secundair" : "primair"}
           >
-            {t("welkom.speel")}
-          </LinkKnop>
-          <LinkKnop href="/rooms" volleBreedte variant="secundair">
-            Kamers en inzet
+            Spelen
           </LinkKnop>
           <div className="grid grid-cols-2 gap-3">
             <LinkKnop href="/tutorial" variant="ghost">

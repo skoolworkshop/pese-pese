@@ -9,6 +9,7 @@ import {
   VERDELING_PRESETS,
   berekenPrijzen,
   kamerById,
+  euro,
 } from "@/game/economie";
 import { speel } from "@/lib/sound";
 
@@ -92,13 +93,13 @@ export default function KamerSetupScherm() {
             <div className="flex items-center justify-between">
               <span className="text-cream/80">Inleg per speler</span>
               <span className="font-display text-xl font-bold text-gold-400">
-                {kamer.inleg} fiches
+                {euro(kamer.inleg)}
               </span>
             </div>
             <div className="mt-2 flex items-center justify-between border-t border-white/10 pt-2">
               <span className="text-cream/80">Totale pot</span>
               <span className="font-display text-xl font-bold text-cream">
-                {pot.totaal} fiches
+                {euro(pot.totaal)}
               </span>
             </div>
           </Paneel>
@@ -171,8 +172,8 @@ export default function KamerSetupScherm() {
                       </span>
                     </div>
                     <div className="mt-1 text-xs text-cream/70">
-                      1e kaart {voorbeeld.eerste}, 3e kaart {voorbeeld.derde},
-                      hele pot {voorbeeld.pot}
+                      1e kaart {euro(voorbeeld.eerste)}, 3e kaart{" "}
+                      {euro(voorbeeld.derde)}, hele pot {euro(voorbeeld.pot)}
                     </div>
                   </button>
                 );
@@ -214,14 +215,14 @@ export default function KamerSetupScherm() {
 
         {gestaked && (
           <p className="px-1 text-xs text-cream/50">
-            Jij bent speler 1 en betaalt de inleg uit je fiches. De andere seats
+            Jij bent speler 1 en betaalt de inleg uit je saldo. De andere seats
             vullen de pot aan voor het spel. Wat zij winnen zie je erbij, maar
             alleen jouw saldo wordt bewaard.
           </p>
         )}
 
         <Knop volleBreedte onClick={start}>
-          {gestaked ? `Meedoen voor ${kamer.inleg} fiches` : "Start het spel"}
+          {gestaked ? `Meedoen voor ${euro(kamer.inleg)}` : "Start het spel"}
         </Knop>
       </div>
     </Scherm>

@@ -12,7 +12,7 @@ import { useT } from "@/i18n";
 import { useSettings } from "@/lib/settings";
 import { useGame } from "@/game/useGame";
 import { kaartenMatchen } from "@/game/cards";
-import { kamerById } from "@/game/economie";
+import { kamerById, euro } from "@/game/economie";
 import { formatteerDuur } from "@/lib/stats";
 import type { Player } from "@/game/types";
 import { speel } from "@/lib/sound";
@@ -142,7 +142,7 @@ export default function SpeelScherm() {
                 Pot
               </div>
               <div className="font-display text-lg font-bold text-gold-400">
-                {kamerPot.totaal}
+                {euro(kamerPot.totaal)}
               </div>
             </div>
             <Prijsvak
@@ -380,7 +380,7 @@ export default function SpeelScherm() {
           {prijsResultaat && (
             <div className="mt-4 rounded-panel bg-black/25 p-3 text-left">
               <div className="mb-2 text-center text-sm text-cream/70">
-                Verdeling van de pot ({prijsResultaat.pot.totaal} fiches)
+                Verdeling van de pot ({euro(prijsResultaat.pot.totaal)})
               </div>
               <div className="flex flex-col gap-1">
                 {prijsResultaat.delen.map((d) => (
@@ -394,7 +394,7 @@ export default function SpeelScherm() {
                         d.isBalansSpeler ? "text-gold-400" : "text-cream/70"
                       }
                     >
-                      {d.winnaarNaam} · {d.bedrag}
+                      {d.winnaarNaam} · {euro(d.bedrag)}
                     </span>
                   </div>
                 ))}
@@ -408,12 +408,12 @@ export default function SpeelScherm() {
                       : "text-blood-500"
                   }`}
                 >
-                  {prijsResultaat.balansSpelerNetto >= 0 ? "+" : ""}
-                  {prijsResultaat.balansSpelerNetto} fiches
+                  {prijsResultaat.balansSpelerNetto >= 0 ? "+" : "-"}
+                  {euro(Math.abs(prijsResultaat.balansSpelerNetto))}
                 </span>
               </div>
               <div className="mt-1 text-right text-xs text-cream/60">
-                Nieuw saldo: {prijsResultaat.nieuwSaldo} fiches
+                Nieuw saldo: {euro(prijsResultaat.nieuwSaldo)}
               </div>
             </div>
           )}
@@ -431,8 +431,8 @@ export default function SpeelScherm() {
               {t("eind.deelFeedback")}
             </LinkKnop>
             <div className="grid grid-cols-2 gap-2">
-              <LinkKnop href={kamerId ? "/rooms" : "/mode"} variant="ghost">
-                {kamerId ? "Kamers" : t("modus.titel")}
+              <LinkKnop href="/rooms" variant="ghost">
+                Kamers
               </LinkKnop>
               <LinkKnop href="/" variant="ghost">
                 {t("nav.home")}
