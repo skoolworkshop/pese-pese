@@ -118,7 +118,6 @@ export function Speelkaart({
   const kleur = rood ? "text-blood-600" : "text-ink";
   const symbool = SUIT_SYMBOOL[kaart.suit];
   const label = RANK_LABEL[kaart.rank];
-  const randKleur = rood ? "#c8102e" : "#12251c";
   const rand = gemarkeerd
     ? "ring-4 ring-gold-500"
     : fout
@@ -225,6 +224,14 @@ export function Speelkaart({
             Joker
           </span>
         </div>
+      ) : isFace ? (
+        // Broer, vrouw en koning tonen we als het echte kaartplaatje.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={`/cards/${kaart.rank}_${kaart.suit}.png`}
+          alt={`${label} ${kaart.suit}`}
+          className="absolute inset-0 h-full w-full object-cover"
+        />
       ) : (
         <>
           {hoekIndex("top-1 left-1")}
@@ -238,23 +245,7 @@ export function Speelkaart({
             </div>
           )}
 
-          {isFace && (
-            <div
-              className="absolute inset-[22%] flex flex-col items-center justify-center gap-0.5 rounded border-2"
-              style={{ borderColor: randKleur }}
-            >
-              <span
-                className={`font-bold ${kleur} ${groot ? "text-4xl" : "text-lg"}`}
-              >
-                {label}
-              </span>
-              <span className={`${kleur} ${groot ? "text-xl" : "text-xs"}`}>
-                {symbool}
-              </span>
-            </div>
-          )}
-
-          {!isAas && !isFace && pips[kaart.rank] && (
+          {!isAas && pips[kaart.rank] && (
             <div
               className="absolute"
               style={{ top: "15%", bottom: "15%", left: "20%", right: "20%" }}
