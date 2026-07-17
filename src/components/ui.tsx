@@ -225,12 +225,12 @@ export function Speelkaart({
           </span>
         </div>
       ) : isFace ? (
-        // Broer, vrouw en koning tonen we als het echte kaartplaatje.
+        // Broer, vrouw en koning als scherpe vectorkaart, volledig binnen de kaart.
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={`/cards/${kaart.rank}_${kaart.suit}.png`}
+          src={`/cards/${kaart.rank}_${kaart.suit}.svg`}
           alt={`${label} ${kaart.suit}`}
-          className="absolute inset-0 h-full w-full object-cover"
+          className="absolute inset-0 h-full w-full object-contain p-0.5"
         />
       ) : (
         <>
