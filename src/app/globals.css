@@ -1,0 +1,98 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --felt-diep: #0c3222;
+  --felt: #12492f;
+  --goud: #f2b03d;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--cream, #faf6ec);
+  background-color: var(--felt-diep);
+  /* Subtiele vilttextuur met een sterrenpatroon als handtekening. */
+  background-image:
+    radial-gradient(circle at 20% 15%, rgba(242, 176, 61, 0.06) 0, transparent 40%),
+    radial-gradient(circle at 85% 80%, rgba(224, 31, 61, 0.06) 0, transparent 45%),
+    radial-gradient(1px 1px at 50% 50%, rgba(255, 255, 255, 0.05) 1px, transparent 0),
+    linear-gradient(160deg, #124a30 0%, #0c3222 60%, #0a2a1c 100%);
+  background-attachment: fixed;
+  font-family: var(--font-body, system-ui, sans-serif);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Handtekening: fijn sterrenraster op de tafel. */
+.tafel-sterren::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+    rgba(255, 255, 255, 0.05) 1.2px,
+    transparent 1.2px
+  );
+  background-size: 26px 26px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Kaartrug met stermotief. */
+.kaartrug {
+  background:
+    radial-gradient(circle at 50% 50%, rgba(242, 176, 61, 0.9) 0 10%, transparent 11%),
+    repeating-linear-gradient(45deg, #14603f 0 8px, #0f4a30 8px 16px);
+  border: 2px solid rgba(242, 176, 61, 0.5);
+}
+
+.focus-ring:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(12, 50, 34, 1), 0 0 0 6px var(--goud);
+}
+
+/* Respecteer de systeeminstelling voor minder beweging. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Verberg scrollbar-artefacten op handzones. */
+.geen-selectie {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Aflopende reactiebalk. */
+@keyframes krimp {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+.timerbalk {
+  transform-origin: left center;
+  animation-name: krimp;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+/* Verberg horizontale scrollbar bij handzones maar houd scrollen mogelijk. */
+.hand-scroll {
+  scrollbar-width: none;
+}
+.hand-scroll::-webkit-scrollbar {
+  display: none;
+}
