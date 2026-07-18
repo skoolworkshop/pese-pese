@@ -213,7 +213,7 @@ export function Speelkaart({
 
   const inhoud = (
     <div
-      className={`relative bg-cream rounded-card ${maat} shadow-card overflow-hidden ${rand} ${
+      className={`relative ${isFace ? "bg-transparent" : "bg-cream"} rounded-card ${maat} shadow-card overflow-hidden ${rand} ${
         onClick && !disabled ? "hover:-translate-y-1 transition-transform" : ""
       }`}
     >
@@ -230,7 +230,7 @@ export function Speelkaart({
         <img
           src={`/cards/${kaart.rank}_${kaart.suit}.svg`}
           alt={`${label} ${kaart.suit}`}
-          className="absolute inset-0 h-full w-full object-cover"
+          className="absolute inset-0 h-full w-full object-contain"
         />
       ) : (
         <>

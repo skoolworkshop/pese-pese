@@ -416,7 +416,9 @@ export default function SpeelScherm() {
               volleBreedte
               onClick={() => {
                 speel("knop");
-                herstart();
+                // Bij een ingezet potje kies je opnieuw waar je voor speelt.
+                if (gestaked) router.push("/room-setup");
+                else herstart();
               }}
             >
               {t("nav.opnieuw")}

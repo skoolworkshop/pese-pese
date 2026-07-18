@@ -1,13 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Scherm, Paneel, Knop, Schakelaar } from "@/components/ui";
+import { useEffect, useRef } from "react";
+import { Scherm, Paneel, Knop } from "@/components/ui";
 import { useSettings } from "@/lib/settings";
 import { wisLopendSpel } from "@/game/useGame";
 import {
   MAX_SPELERS,
-  DERDE_FACTOR,
-  EERSTE_FACTOR,
   berekenPools,
   totaleInleg,
   kamerById,
@@ -83,6 +82,15 @@ export default function KamerSetupScherm() {
   const jouwInleg = totaleInleg(kamer.inleg, inzetKeuze);
   const pools = berekenPools(kamer.inleg, config.spelerAantal, inzetKeuze);
 
+  // Elk nieuw potje begint zonder extra's, zodat de keuze steeds bewust is.
+  const gereset = useRef(false);
+  useEffect(() => {
+    if (!gereset.current) {
+      gereset.current = true;
+      zetInzet({ eerste: false, derde: false });
+    }
+  }, [zetInzet]);
+
   function start() {
     wisLopendSpel();
     router.push("/play");
@@ -155,54 +163,51 @@ export default function KamerSetupScherm() {
         {gestaked && (
           <Paneel>
             <div className="mb-1 font-semibold text-cream">
-              Waar speel je voor?
+              Waar speel je dit potje voor?
             </div>
             <p className="mb-3 text-sm text-cream/60">
-              De pot speel je altijd. 1e en 3e kaart kun je er als extra bij
-              nemen.
+              De pot speel je altijd. Kies of je 1e en 3e kaart erbij neemt.
             </p>
-
-            <div className="flex items-center justify-between rounded-card bg-white/5 px-3 py-2">
-              <div>
-                <div className="font-semibold text-cream">Pot</div>
-                <div className="text-xs text-cream/60">
-                  Wie als eerste alle kaarten kwijt is
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="font-semibold text-gold-400">
-                  {euro(kamer.inleg)}
-                </div>
-                <div className="text-[11px] text-cream/50">altijd</div>
-              </div>
-            </div>
-
-            <div className="mt-2 flex items-center justify-between rounded-card bg-white/5 px-3 py-2">
-              <div>
-                <div className="font-semibold text-cream">3e kaart</div>
-                <div className="text-xs text-cream/60">
-                  Extra: {euro(kamer.inleg * DERDE_FACTOR)} erbij
-                </div>
-              </div>
-              <Schakelaar
-                aan={inzetKeuze.derde}
-                onChange={(v) => zetInzet({ ...inzetKeuze, derde: v })}
-                labelAria="3e kaart meespelen"
-              />
-            </div>
-
-            <div className="mt-2 flex items-center justify-between rounded-card bg-white/5 px-3 py-2">
-              <div>
-                <div className="font-semibold text-cream">1e kaart</div>
-                <div className="text-xs text-cream/60">
-                  Extra: {euro(kamer.inleg * EERSTE_FACTOR)} erbij
-                </div>
-              </div>
-              <Schakelaar
-                aan={inzetKeuze.eerste}
-                onChange={(v) => zetInzet({ ...inzetKeuze, eerste: v })}
-                labelAria="1e kaart meespelen"
-              />
+            <div className="flex flex-col gap-2">
+              {[
+                { eerste: false, derde: false, label: "Alleen de pot" },
+                { eerste: false, derde: true, label: "Pot en 3e kaart" },
+                { eerste: true, derde: false, label: "Pot en 1e kaart" },
+                { eerste: true, derde: true, label: "Pot, 1e en 3e kaart" },
+              ].map((opt) => {
+                const actief =
+                  inzetKeuze.eerste === opt.eerste &&
+                  inzetKeuze.derde === opt.derde;
+                const prijs = totaleInleg(kamer.inleg, {
+                  eerste: opt.eerste,
+                  derde: opt.derde,
+                });
+                return (
+                  <button
+                    key={opt.label}
+                    onClick={() => {
+                      speel("knop");
+                      zetInzet({ eerste: opt.eerste, derde: opt.derde });
+                    }}
+                    className={`focus-ring flex items-center justify-between rounded-card border px-3 py-3 text-left ${
+                      actief
+                        ? "border-gold-500 bg-gold-500/15"
+                        : "border-white/15 bg-white/5 hover:bg-white/10"
+                    }`}
+                  >
+                    <span className="font-semibold text-cream">
+                      {opt.label}
+                    </span>
+                    <span
+                      className={`font-display font-bold ${
+                        actief ? "text-gold-400" : "text-cream/70"
+                      }`}
+                    >
+                      {euro(prijs)}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </Paneel>
         )}
