@@ -1,8 +1,19 @@
 // Eenvoudige service worker voor Pese Pese. Zorgt dat de app offline blijft
 // werken nadat die een keer geladen is.
 
-const CACHE = "pesepese-v1";
-const KERN = ["/", "/manifest.webmanifest", "/icons/icon-192.png"];
+const CACHE = "pesepese-v2";
+const KAARTEN = ["B", "V", "H"].flatMap((r) =>
+  ["schoppen", "harten", "klaveren", "ruiten"].map(
+    (k) => `/cards/${r}_${k}.svg`,
+  ),
+);
+const KERN = [
+  "/",
+  "/manifest.webmanifest",
+  "/icons/icon-192.png",
+  "/logo.png",
+  ...KAARTEN,
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
