@@ -100,7 +100,7 @@ export default function SpeelScherm() {
       if (laatsteResultaat === "fout")
         return config.strafkaartAan ? t("spel.fout") : t("spel.foutGeenStraf");
       if (laatsteResultaat === "gemist") return t("spel.gemist");
-      return t("spel.geenMatch");
+      return "";
     }
     return "";
   }

@@ -297,7 +297,7 @@ export function useGame({
       setWachtOpVolgende(true);
     } else {
       // Bij een gemiste kaart iets langer tonen zodat je het ziet.
-      const t = setTimeout(() => revealRef.current(), gemist ? 1100 : 750);
+      const t = setTimeout(() => revealRef.current(), gemist ? 1100 : 420);
       timers.current.push(t);
     }
   }, [bewaarState, handmatig]);
