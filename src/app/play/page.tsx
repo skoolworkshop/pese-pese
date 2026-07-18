@@ -12,7 +12,7 @@ import { useT } from "@/i18n";
 import { useSettings } from "@/lib/settings";
 import { useGame } from "@/game/useGame";
 import { kaartenMatchen } from "@/game/cards";
-import { kamerById, euro } from "@/game/economie";
+import { kamerById, euro, totaleInleg } from "@/game/economie";
 import { formatteerDuur } from "@/lib/stats";
 import type { Player } from "@/game/types";
 import { speel } from "@/lib/sound";
@@ -55,6 +55,7 @@ export default function SpeelScherm() {
 
   // Praatje van de spelleider dat meebeweegt met het spel.
   const [hostBericht, setHostBericht] = useState("");
+  const [stopBevestig, setStopBevestig] = useState(false);
   useEffect(() => {
     if (!state) return;
     const eersteMens = state.spelers.find((sp) => sp.isHuman);
@@ -313,37 +314,81 @@ export default function SpeelScherm() {
       {/* Pauze-overlay */}
       {gepauzeerd && !einde && (
         <Overlay>
-          <h2 className="mb-4 font-display text-2xl font-bold text-cream">
-            {t("spel.pauze")}
-          </h2>
-          <div className="flex flex-col gap-2">
-            <Knop volleBreedte onClick={hervat}>
-              {t("spel.hervat")}
-            </Knop>
-            <Knop
-              variant="secundair"
-              volleBreedte
-              onClick={() => {
-                speel("knop");
-                herstart();
-              }}
-            >
-              {t("nav.opnieuw")}
-            </Knop>
-            <LinkKnop href="/settings" variant="ghost" volleBreedte>
-              {t("instel.titel")}
-            </LinkKnop>
-            <Knop
-              variant="gevaar"
-              volleBreedte
-              onClick={() => {
-                afsluitenAlsAfgebroken();
-                router.push("/");
-              }}
-            >
-              {t("spel.stoppen")}
-            </Knop>
-          </div>
+          {stopBevestig ? (
+            <>
+              <div className="mb-2 text-4xl" aria-hidden="true">
+                ⚠️
+              </div>
+              <h2 className="font-display text-xl font-bold text-cream">
+                Weet je het zeker?
+              </h2>
+              <p className="mt-2 text-cream/80">
+                Als je nu stopt, ben je je inleg van{" "}
+                {euro(totaleInleg(kamer.inleg, inzetKeuze))} kwijt. Je kunt dit
+                potje niet later hervatten.
+              </p>
+              <div className="mt-5 flex flex-col gap-2">
+                <Knop
+                  variant="gevaar"
+                  volleBreedte
+                  onClick={() => {
+                    afsluitenAlsAfgebroken();
+                    router.push("/rooms");
+                  }}
+                >
+                  Ja, stoppen
+                </Knop>
+                <Knop
+                  variant="ghost"
+                  volleBreedte
+                  onClick={() => setStopBevestig(false)}
+                >
+                  Nee, doorspelen
+                </Knop>
+              </div>
+            </>
+          ) : (
+            <>
+              <h2 className="mb-4 font-display text-2xl font-bold text-cream">
+                {t("spel.pauze")}
+              </h2>
+              <div className="flex flex-col gap-2">
+                <Knop volleBreedte onClick={hervat}>
+                  {t("spel.hervat")}
+                </Knop>
+                {!gestaked && (
+                  <Knop
+                    variant="secundair"
+                    volleBreedte
+                    onClick={() => {
+                      speel("knop");
+                      herstart();
+                    }}
+                  >
+                    {t("nav.opnieuw")}
+                  </Knop>
+                )}
+                <LinkKnop href="/settings" variant="ghost" volleBreedte>
+                  {t("instel.titel")}
+                </LinkKnop>
+                <Knop
+                  variant="gevaar"
+                  volleBreedte
+                  onClick={() => {
+                    speel("knop");
+                    if (gestaked) {
+                      setStopBevestig(true);
+                    } else {
+                      afsluitenAlsAfgebroken();
+                      router.push("/");
+                    }
+                  }}
+                >
+                  {t("spel.stoppen")}
+                </Knop>
+              </div>
+            </>
+          )}
         </Overlay>
       )}
 

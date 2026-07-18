@@ -245,9 +245,9 @@ export default function KamerSetupScherm() {
 
         {gestaked && (
           <p className="px-1 text-xs text-cream/50">
-            Jij bent speler 1 en betaalt de inleg uit je saldo. De andere seats
-            vullen de pot aan voor het spel. Wat zij winnen zie je erbij, maar
-            alleen jouw saldo wordt bewaard.
+            Jij bent speler 1 en betaalt de inleg uit je saldo. Stop je
+            tussentijds, dan ben je je inleg kwijt en kun je het potje niet
+            hervatten. De andere seats vullen de pot aan voor het spel.
           </p>
         )}
 

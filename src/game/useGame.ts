@@ -198,8 +198,8 @@ export function useGame({
         const balansSpeler = mensen[0] ?? s.spelers[0];
         const jouwInleg = totaleInleg(inzet.basis, inzet.sel);
         if (afgebroken || !s.winnaarId) {
-          // Afgebroken potje. Geef de inleg terug.
-          wijzigFiches(jouwInleg);
+          // Wie een ingezet potje verlaat, is zijn inleg kwijt. De inleg zit
+          // al in de pot, dus er komt niets terug.
           setPrijsResultaat(null);
         } else {
           const pools = berekenPools(inzet.basis, s.spelers.length, inzet.sel);
