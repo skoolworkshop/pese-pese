@@ -20,13 +20,11 @@ import { speel } from "@/lib/sound";
 export default function SpeelScherm() {
   const { t } = useT();
   const router = useRouter();
-  const { config, modus, bouwSpelers, kamerId, prijsVerdeling } = useSettings();
+  const { config, modus, bouwSpelers, kamerId, inzetKeuze } = useSettings();
 
   const kamer = kamerById(kamerId ?? "hobby");
   const gestaked = !!kamerId && !kamer.hobby;
-  const inzet = gestaked
-    ? { inleg: kamer.inleg, verdeling: prijsVerdeling }
-    : null;
+  const inzet = gestaked ? { basis: kamer.inleg, sel: inzetKeuze } : null;
 
   const game = useGame({ config, modus, bouwSpelers, inzet });
   const {
@@ -136,25 +134,21 @@ export default function SpeelScherm() {
       {/* Pot en mijlpalen bij een ingezet potje */}
       {kamerPot && (
         <div className="relative z-10 mt-2">
-          <div className="mx-auto flex max-w-md items-center justify-between rounded-card bg-black/30 px-3 py-2">
-            <div className="text-center">
-              <div className="text-[10px] uppercase tracking-wide text-cream/50">
-                Pot
-              </div>
-              <div className="font-display text-lg font-bold text-gold-400">
-                {euro(kamerPot.totaal)}
-              </div>
-            </div>
-            <Prijsvak
-              label="1e kaart"
-              bedrag={kamerPot.eerste}
-              naam={naamVan(mijlpaalEersteId)}
-            />
-            <Prijsvak
-              label="3e kaart"
-              bedrag={kamerPot.derde}
-              naam={naamVan(mijlpaalDerdeId)}
-            />
+          <div className="mx-auto flex max-w-md items-center justify-around rounded-card bg-black/30 px-3 py-2">
+            {kamerPot.eerste > 0 && (
+              <Prijsvak
+                label="1e kaart"
+                bedrag={kamerPot.eerste}
+                naam={naamVan(mijlpaalEersteId)}
+              />
+            )}
+            {kamerPot.derde > 0 && (
+              <Prijsvak
+                label="3e kaart"
+                bedrag={kamerPot.derde}
+                naam={naamVan(mijlpaalDerdeId)}
+              />
+            )}
             <Prijsvak
               label="Hele pot"
               bedrag={kamerPot.pot}
@@ -479,7 +473,7 @@ function Prijsvak({
         {label}
       </div>
       <div className="font-display text-base font-bold text-cream">
-        {bedrag}
+        {euro(bedrag)}
       </div>
       <div className="max-w-[64px] truncate text-[10px] text-gold-300">
         {naam ?? "—"}

@@ -17,11 +17,12 @@ import type {
   SpelModus,
 } from "./types";
 import {
-  berekenPrijzen,
+  berekenPools,
+  totaleInleg,
   kaartenKwijt,
   leesFiches,
   wijzigFiches,
-  type PrijsVerdeling,
+  type SpelInzet,
   type PrijzenPot,
 } from "./economie";
 import { leesJson, schrijfJson, verwijder } from "@/lib/storage";
@@ -46,8 +47,8 @@ export function leesLopendSpel(): GameState | null {
 }
 
 interface Inzet {
-  inleg: number;
-  verdeling: PrijsVerdeling;
+  basis: number;
+  sel: SpelInzet;
 }
 
 interface UseGameArgs {
@@ -118,7 +119,7 @@ export function useGame({
   const eersteRef = useRef<string | null>(null);
   const derdeRef = useRef<string | null>(null);
 
-  const gestaked = !!inzet && inzet.inleg > 0;
+  const gestaked = !!inzet && inzet.basis > 0;
 
   const handmatig = modus === "oefenen" || config.reactieTijdMs <= 0;
 
@@ -195,57 +196,60 @@ export function useGame({
       // Fiches afhandelen bij ingezette potjes.
       if (gestaked && inzet) {
         const balansSpeler = mensen[0] ?? s.spelers[0];
+        const jouwInleg = totaleInleg(inzet.basis, inzet.sel);
         if (afgebroken || !s.winnaarId) {
           // Afgebroken potje. Geef de inleg terug.
-          wijzigFiches(inzet.inleg);
+          wijzigFiches(jouwInleg);
           setPrijsResultaat(null);
         } else {
-          const pot = berekenPrijzen(
-            inzet.inleg,
-            s.spelers.length,
-            inzet.verdeling,
-          );
-          const eersteId = eersteRef.current ?? s.winnaarId;
-          const derdeId = derdeRef.current ?? s.winnaarId;
+          const pools = berekenPools(inzet.basis, s.spelers.length, inzet.sel);
           const potId = s.winnaarId;
           const naamVan = (id: string | null) =>
             s.spelers.find((sp) => sp.id === id)?.naam ?? "geen";
+
           const delen: PrijsDeel[] = [
-            {
-              tier: "eerste",
-              label: "1e kaart",
-              winnaarId: eersteId,
-              winnaarNaam: naamVan(eersteId),
-              bedrag: pot.eerste,
-              isBalansSpeler: eersteId === balansSpeler.id,
-            },
-            {
-              tier: "derde",
-              label: "3e kaart",
-              winnaarId: derdeId,
-              winnaarNaam: naamVan(derdeId),
-              bedrag: pot.derde,
-              isBalansSpeler: derdeId === balansSpeler.id,
-            },
             {
               tier: "pot",
               label: "Hele pot",
               winnaarId: potId,
               winnaarNaam: naamVan(potId),
-              bedrag: pot.pot,
+              bedrag: pools.pot,
               isBalansSpeler: potId === balansSpeler.id,
             },
           ];
+          if (inzet.sel.derde) {
+            const derdeId = derdeRef.current ?? s.winnaarId;
+            delen.unshift({
+              tier: "derde",
+              label: "3e kaart",
+              winnaarId: derdeId,
+              winnaarNaam: naamVan(derdeId),
+              bedrag: pools.derde,
+              isBalansSpeler: derdeId === balansSpeler.id,
+            });
+          }
+          if (inzet.sel.eerste) {
+            const eersteId = eersteRef.current ?? s.winnaarId;
+            delen.unshift({
+              tier: "eerste",
+              label: "1e kaart",
+              winnaarId: eersteId,
+              winnaarNaam: naamVan(eersteId),
+              bedrag: pools.eerste,
+              isBalansSpeler: eersteId === balansSpeler.id,
+            });
+          }
+
           const winst = delen
             .filter((d) => d.isBalansSpeler)
             .reduce((som, d) => som + d.bedrag, 0);
           if (winst > 0) wijzigFiches(winst);
           setPrijsResultaat({
-            pot,
+            pot: pools,
             delen,
-            inleg: inzet.inleg,
+            inleg: jouwInleg,
             balansSpelerWinst: winst,
-            balansSpelerNetto: winst - inzet.inleg,
+            balansSpelerNetto: Math.round((winst - jouwInleg) * 100) / 100,
             nieuwSaldo: leesFiches(),
           });
         }
@@ -414,12 +418,10 @@ export function useGame({
     setPrijsResultaat(null);
     const nieuw = maakSpel(config, bouwSpelers(), modus, echteRng);
     if (gestaked && inzet) {
-      // De inleg wordt bij de start ingehouden. De pot wordt aan het einde
-      // verdeeld over de 1e kaart, de 3e kaart en de hele pot.
-      wijzigFiches(-inzet.inleg);
-      setKamerPot(
-        berekenPrijzen(inzet.inleg, nieuw.spelers.length, inzet.verdeling),
-      );
+      // De totale inleg wordt bij de start ingehouden. De pot speel je altijd,
+      // 1e en 3e kaart alleen als je die extra hebt gekozen.
+      wijzigFiches(-totaleInleg(inzet.basis, inzet.sel));
+      setKamerPot(berekenPools(inzet.basis, nieuw.spelers.length, inzet.sel));
     } else {
       setKamerPot(null);
     }

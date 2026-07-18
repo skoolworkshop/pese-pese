@@ -33,25 +33,28 @@ export function kamerById(id: string): Kamer {
 
 export const MAX_SPELERS = 10;
 
-// Verdeling van de pot over de drie prijzen, in procenten. Samen 100.
-export interface PrijsVerdeling {
-  eerste: number; // prijs voor wie als eerste 1 kaart kwijt is
-  derde: number; // prijs voor wie als eerste 3 kaarten kwijt is
-  pot: number; // hoofdprijs voor wie als eerste alle kaarten kwijt is
+// Waar je voor speelt. De pot speel je altijd. 1e en 3e kaart zijn optioneel.
+// 3e kost de helft van de kamerinzet extra, 1e een kwart extra.
+export interface SpelInzet {
+  eerste: boolean; // meespelen om de 1e-kaart prijs
+  derde: boolean; // meespelen om de 3e-kaart prijs
 }
 
-export const STANDAARD_VERDELING: PrijsVerdeling = {
-  eerste: 20,
-  derde: 30,
-  pot: 50,
-};
+export const STANDAARD_INZET: SpelInzet = { eerste: false, derde: false };
+export const EERSTE_FACTOR = 0.25;
+export const DERDE_FACTOR = 0.5;
 
-export const VERDELING_PRESETS: { label: string; verdeling: PrijsVerdeling }[] =
-  [
-    { label: "Winnaar pakt veel", verdeling: { eerste: 10, derde: 20, pot: 70 } },
-    { label: "Gelijk verdeeld", verdeling: { eerste: 20, derde: 30, pot: 50 } },
-    { label: "Elk deel telt", verdeling: { eerste: 33, derde: 33, pot: 34 } },
-  ];
+function afrondCent(n: number): number {
+  return Math.round(n * 100) / 100;
+}
+
+// Wat één speler betaalt bij deze kamer en keuzes.
+export function totaleInleg(basis: number, sel: SpelInzet): number {
+  let inleg = basis; // pot altijd
+  if (sel.derde) inleg += basis * DERDE_FACTOR;
+  if (sel.eerste) inleg += basis * EERSTE_FACTOR;
+  return afrondCent(inleg);
+}
 
 export interface PrijzenPot {
   totaal: number;
@@ -60,17 +63,18 @@ export interface PrijzenPot {
   pot: number;
 }
 
-// Rekent de pot en de drie prijzen uit. Afrondingsrest gaat naar de hoofdpot.
-export function berekenPrijzen(
-  inleg: number,
+// De prijzenpotten. Iedere speler die meedoet vult de betreffende pot.
+export function berekenPools(
+  basis: number,
   aantalSpelers: number,
-  verdeling: PrijsVerdeling,
+  sel: SpelInzet,
 ): PrijzenPot {
-  const totaal = inleg * aantalSpelers;
-  const eerste = Math.floor((totaal * verdeling.eerste) / 100);
-  const derde = Math.floor((totaal * verdeling.derde) / 100);
-  const pot = totaal - eerste - derde;
-  return { totaal, eerste, derde, pot };
+  const pot = afrondCent(basis * aantalSpelers);
+  const eerste = sel.eerste
+    ? afrondCent(basis * EERSTE_FACTOR * aantalSpelers)
+    : 0;
+  const derde = sel.derde ? afrondCent(basis * DERDE_FACTOR * aantalSpelers) : 0;
+  return { totaal: afrondCent(pot + eerste + derde), eerste, derde, pot };
 }
 
 // Aantal kaarten dat een speler al kwijt is. Strafkaarten tellen mee zodat
@@ -84,11 +88,11 @@ export function leesFiches(): number {
 }
 
 export function schrijfFiches(waarde: number): void {
-  schrijfJson(FICHES_SLEUTEL, Math.max(0, Math.round(waarde)));
+  schrijfJson(FICHES_SLEUTEL, Math.max(0, afrondCent(waarde)));
 }
 
 export function wijzigFiches(delta: number): number {
-  const nieuw = Math.max(0, leesFiches() + delta);
+  const nieuw = Math.max(0, afrondCent(leesFiches() + delta));
   schrijfFiches(nieuw);
   return nieuw;
 }
@@ -101,5 +105,8 @@ export function resetFiches(): number {
 // Toon bedragen als euro. Dit is een testversie, er wordt nog geen echt geld
 // verwerkt. De euro is hier alleen een label voor het gevoel.
 export function euro(n: number): string {
-  return `\u20ac ${n}`;
+  const heel = Math.round(n * 100) % 100 === 0;
+  return heel
+    ? `\u20ac ${Math.round(n)}`
+    : `\u20ac ${n.toFixed(2).replace(".", ",")}`;
 }

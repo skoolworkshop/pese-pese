@@ -1,13 +1,15 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Scherm, Paneel, Knop } from "@/components/ui";
+import { Scherm, Paneel, Knop, Schakelaar } from "@/components/ui";
 import { useSettings } from "@/lib/settings";
 import { wisLopendSpel } from "@/game/useGame";
 import {
   MAX_SPELERS,
-  VERDELING_PRESETS,
-  berekenPrijzen,
+  DERDE_FACTOR,
+  EERSTE_FACTOR,
+  berekenPools,
+  totaleInleg,
   kamerById,
   euro,
 } from "@/game/economie";
@@ -66,11 +68,11 @@ export default function KamerSetupScherm() {
     kamerId,
     config,
     aantalMensen,
-    prijsVerdeling,
+    inzetKeuze,
     naamOverrides,
     zetConfig,
     zetAantalMensen,
-    zetVerdeling,
+    zetInzet,
     zetNaam,
     bouwSpelers,
   } = useSettings();
@@ -78,7 +80,8 @@ export default function KamerSetupScherm() {
   const kamer = kamerById(kamerId ?? "hobby");
   const gestaked = !kamer.hobby;
   const spelers = bouwSpelers();
-  const pot = berekenPrijzen(kamer.inleg, config.spelerAantal, prijsVerdeling);
+  const jouwInleg = totaleInleg(kamer.inleg, inzetKeuze);
+  const pools = berekenPools(kamer.inleg, config.spelerAantal, inzetKeuze);
 
   function start() {
     wisLopendSpel();
@@ -91,17 +94,33 @@ export default function KamerSetupScherm() {
         {gestaked && (
           <Paneel>
             <div className="flex items-center justify-between">
-              <span className="text-cream/80">Inleg per speler</span>
-              <span className="font-display text-xl font-bold text-gold-400">
-                {euro(kamer.inleg)}
+              <span className="text-cream/80">Jouw inleg</span>
+              <span className="font-display text-2xl font-bold text-gold-400">
+                {euro(jouwInleg)}
               </span>
             </div>
-            <div className="mt-2 flex items-center justify-between border-t border-white/10 pt-2">
-              <span className="text-cream/80">Totale pot</span>
-              <span className="font-display text-xl font-bold text-cream">
-                {euro(pot.totaal)}
+            <div className="mt-2 flex items-center justify-between border-t border-white/10 pt-2 text-sm">
+              <span className="text-cream/70">Totale pot</span>
+              <span className="font-semibold text-cream">
+                {euro(pools.pot)}
               </span>
             </div>
+            {pools.eerste > 0 && (
+              <div className="mt-1 flex items-center justify-between text-sm">
+                <span className="text-cream/70">1e-kaart prijs</span>
+                <span className="font-semibold text-cream">
+                  {euro(pools.eerste)}
+                </span>
+              </div>
+            )}
+            {pools.derde > 0 && (
+              <div className="mt-1 flex items-center justify-between text-sm">
+                <span className="text-cream/70">3e-kaart prijs</span>
+                <span className="font-semibold text-cream">
+                  {euro(pools.derde)}
+                </span>
+              </div>
+            )}
           </Paneel>
         )}
 
@@ -135,49 +154,55 @@ export default function KamerSetupScherm() {
 
         {gestaked && (
           <Paneel>
-            <div className="mb-2 font-semibold text-cream">
-              Zo verdeel je de pot
+            <div className="mb-1 font-semibold text-cream">
+              Waar speel je voor?
             </div>
-            <div className="flex flex-col gap-2">
-              {VERDELING_PRESETS.map((p) => {
-                const actief =
-                  p.verdeling.eerste === prijsVerdeling.eerste &&
-                  p.verdeling.derde === prijsVerdeling.derde &&
-                  p.verdeling.pot === prijsVerdeling.pot;
-                const voorbeeld = berekenPrijzen(
-                  kamer.inleg,
-                  config.spelerAantal,
-                  p.verdeling,
-                );
-                return (
-                  <button
-                    key={p.label}
-                    onClick={() => {
-                      speel("knop");
-                      zetVerdeling(p.verdeling);
-                    }}
-                    className={`focus-ring rounded-card border px-3 py-2 text-left ${
-                      actief
-                        ? "border-gold-500 bg-gold-500/15"
-                        : "border-white/15 bg-white/5 hover:bg-white/10"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold text-cream">
-                        {p.label}
-                      </span>
-                      <span className="text-xs text-cream/60">
-                        {p.verdeling.eerste} / {p.verdeling.derde} /{" "}
-                        {p.verdeling.pot}
-                      </span>
-                    </div>
-                    <div className="mt-1 text-xs text-cream/70">
-                      1e kaart {euro(voorbeeld.eerste)}, 3e kaart{" "}
-                      {euro(voorbeeld.derde)}, hele pot {euro(voorbeeld.pot)}
-                    </div>
-                  </button>
-                );
-              })}
+            <p className="mb-3 text-sm text-cream/60">
+              De pot speel je altijd. 1e en 3e kaart kun je er als extra bij
+              nemen.
+            </p>
+
+            <div className="flex items-center justify-between rounded-card bg-white/5 px-3 py-2">
+              <div>
+                <div className="font-semibold text-cream">Pot</div>
+                <div className="text-xs text-cream/60">
+                  Wie als eerste alle kaarten kwijt is
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="font-semibold text-gold-400">
+                  {euro(kamer.inleg)}
+                </div>
+                <div className="text-[11px] text-cream/50">altijd</div>
+              </div>
+            </div>
+
+            <div className="mt-2 flex items-center justify-between rounded-card bg-white/5 px-3 py-2">
+              <div>
+                <div className="font-semibold text-cream">3e kaart</div>
+                <div className="text-xs text-cream/60">
+                  Extra: {euro(kamer.inleg * DERDE_FACTOR)} erbij
+                </div>
+              </div>
+              <Schakelaar
+                aan={inzetKeuze.derde}
+                onChange={(v) => zetInzet({ ...inzetKeuze, derde: v })}
+                labelAria="3e kaart meespelen"
+              />
+            </div>
+
+            <div className="mt-2 flex items-center justify-between rounded-card bg-white/5 px-3 py-2">
+              <div>
+                <div className="font-semibold text-cream">1e kaart</div>
+                <div className="text-xs text-cream/60">
+                  Extra: {euro(kamer.inleg * EERSTE_FACTOR)} erbij
+                </div>
+              </div>
+              <Schakelaar
+                aan={inzetKeuze.eerste}
+                onChange={(v) => zetInzet({ ...inzetKeuze, eerste: v })}
+                labelAria="1e kaart meespelen"
+              />
             </div>
           </Paneel>
         )}
@@ -222,7 +247,7 @@ export default function KamerSetupScherm() {
         )}
 
         <Knop volleBreedte onClick={start}>
-          {gestaked ? `Meedoen voor ${euro(kamer.inleg)}` : "Start het spel"}
+          {gestaked ? `Meedoen voor ${euro(jouwInleg)}` : "Start het spel"}
         </Knop>
       </div>
     </Scherm>

@@ -15,8 +15,8 @@ import {
 import { STANDAARD_CONFIG, standaardSpelers } from "@/game/config";
 import type { GameConfig, PlayerSetup, SpelModus } from "@/game/types";
 import {
-  STANDAARD_VERDELING,
-  type PrijsVerdeling,
+  STANDAARD_INZET,
+  type SpelInzet,
 } from "@/game/economie";
 import { leesJson, schrijfJson } from "./storage";
 
@@ -28,7 +28,7 @@ interface OpgeslagenInstellingen {
   aantalMensen: number;
   naamOverrides: Record<number, string>;
   kamerId: string | null;
-  prijsVerdeling: PrijsVerdeling;
+  inzetKeuze: SpelInzet;
 }
 
 interface SettingsContextType extends OpgeslagenInstellingen {
@@ -37,7 +37,7 @@ interface SettingsContextType extends OpgeslagenInstellingen {
   zetAantalMensen: (n: number) => void;
   zetNaam: (index: number, naam: string) => void;
   zetKamer: (id: string) => void;
-  zetVerdeling: (v: PrijsVerdeling) => void;
+  zetInzet: (v: SpelInzet) => void;
   bouwSpelers: () => PlayerSetup[];
 }
 
@@ -47,7 +47,7 @@ const standaard: OpgeslagenInstellingen = {
   aantalMensen: 1,
   naamOverrides: {},
   kamerId: null,
-  prijsVerdeling: STANDAARD_VERDELING,
+  inzetKeuze: STANDAARD_INZET,
 };
 
 const SettingsContext = createContext<SettingsContextType | null>(null);
@@ -131,9 +131,9 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const zetVerdeling = useCallback((v: PrijsVerdeling) => {
+  const zetInzet = useCallback((v: SpelInzet) => {
     setInstellingen((prev) => {
-      const nieuw = { ...prev, prijsVerdeling: v };
+      const nieuw = { ...prev, inzetKeuze: v };
       schrijfJson(SLEUTEL, nieuw);
       return nieuw;
     });
@@ -159,7 +159,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       zetAantalMensen,
       zetNaam,
       zetKamer,
-      zetVerdeling,
+      zetInzet,
       bouwSpelers,
     }),
     [
@@ -169,7 +169,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       zetAantalMensen,
       zetNaam,
       zetKamer,
-      zetVerdeling,
+      zetInzet,
       bouwSpelers,
     ],
   );
