@@ -219,7 +219,7 @@ export default function SpeelScherm() {
                 <Speelkaart kaart={state.huidigeKaart} groot />
               </div>
             ) : (
-              <div className="w-24 h-36 sm:w-28 sm:h-40 rounded-card border-2 border-dashed border-white/20" />
+              <div className="w-24 sm:w-28 aspect-[167/243] rounded-card border-2 border-dashed border-white/20" />
             )}
             <span className="text-[11px] text-cream/50">
               {t("spel.leiderKaart")}

@@ -97,8 +97,8 @@ export function Speelkaart({
   ariaLabel?: string;
 }) {
   const maat = groot
-    ? "w-24 h-36 sm:w-28 sm:h-40 text-4xl"
-    : "w-14 h-20 sm:w-16 sm:h-24 text-xl";
+    ? "w-24 sm:w-28 aspect-[167/243]"
+    : "w-14 sm:w-16 aspect-[167/243]";
 
   if (dicht || !kaart) {
     return (
@@ -230,7 +230,7 @@ export function Speelkaart({
         <img
           src={`/cards/${kaart.rank}_${kaart.suit}.svg`}
           alt={`${label} ${kaart.suit}`}
-          className="absolute inset-0 h-full w-full scale-[1.06] object-cover"
+          className="absolute inset-0 h-full w-full object-cover"
         />
       ) : (
         <>
