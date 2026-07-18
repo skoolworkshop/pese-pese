@@ -297,7 +297,12 @@ export function useGame({
       setWachtOpVolgende(true);
     } else {
       // Bij een gemiste kaart iets langer tonen zodat je het ziet.
-      const t = setTimeout(() => revealRef.current(), gemist ? 1100 : 420);
+      // Gebeurde er niets, dan meteen door. Bij een reactie kort tonen,
+      // bij een gemiste eigen kaart iets langer zodat je het ziet.
+      const erWasReactie =
+        Object.keys(huidig.reactiesDezeReveal ?? {}).length > 0;
+      const wacht = gemist ? 1100 : erWasReactie ? 420 : 0;
+      const t = setTimeout(() => revealRef.current(), wacht);
       timers.current.push(t);
     }
   }, [bewaarState, handmatig]);
