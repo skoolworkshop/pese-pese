@@ -251,7 +251,7 @@ export default function SpeelScherm() {
         {klaarOmTeDraaien && (
           <Knop onClick={reveal}>{t("spel.draaiKaart")}</Knop>
         )}
-        {(wachtOpVolgende || naReactie || (inReactie && handmatig)) && (
+        {handmatig && (wachtOpVolgende || naReactie || inReactie) && (
           <Knop onClick={volgende}>{t("spel.volgende")}</Knop>
         )}
       </div>
